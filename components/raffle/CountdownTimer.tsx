@@ -1,6 +1,6 @@
-'use client';
+"use client";
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect } from "react";
 
 interface CountdownTimerProps {
   endDate: string;
@@ -14,32 +14,34 @@ interface TimeLeft {
 }
 
 export default function CountdownTimer({ endDate }: CountdownTimerProps) {
-  const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(null);
+  const calculateTimeLeft = () => {
+    const difference = new Date(endDate).getTime() - new Date().getTime();
+
+    if (difference <= 0) {
+      return null;
+    }
+
+    return {
+      days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+      hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+      minutes: Math.floor((difference / 1000 / 60) % 60),
+      seconds: Math.floor((difference / 1000) % 60),
+    };
+  };
+
+  const [timeLeft, setTimeLeft] = useState<TimeLeft | null>(calculateTimeLeft);
   const [isEnded, setIsEnded] = useState(false);
 
   useEffect(() => {
-    const calculateTimeLeft = () => {
-      const difference = new Date(endDate).getTime() - new Date().getTime();
-
-      if (difference <= 0) {
-        setIsEnded(true);
-        return null;
-      }
-
-      return {
-        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((difference / 1000 / 60) % 60),
-        seconds: Math.floor((difference / 1000) % 60),
-      };
-    };
-
-    // 초기 계산
-    setTimeLeft(calculateTimeLeft());
-
     // 1초마다 업데이트
     const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
+      const newTimeLeft = calculateTimeLeft();
+      if (newTimeLeft === null) {
+        setIsEnded(true);
+        clearInterval(timer);
+      } else {
+        setTimeLeft(newTimeLeft);
+      }
     }, 1000);
 
     return () => clearInterval(timer);
@@ -48,7 +50,9 @@ export default function CountdownTimer({ endDate }: CountdownTimerProps) {
   if (isEnded) {
     return (
       <div className="text-center py-4">
-        <p className="text-xl font-bold text-gray-600">이벤트가 종료되었습니다</p>
+        <p className="text-xl font-bold text-gray-600">
+          이벤트가 종료되었습니다
+        </p>
       </div>
     );
   }
@@ -61,7 +65,7 @@ export default function CountdownTimer({ endDate }: CountdownTimerProps) {
     );
   }
 
-  const formatNumber = (num: number) => String(num).padStart(2, '0');
+  const formatNumber = (num: number) => String(num).padStart(2, "0");
 
   return (
     <div className="text-center py-4">

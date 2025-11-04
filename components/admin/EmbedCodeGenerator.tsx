@@ -1,17 +1,28 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from "react";
 
 interface EmbedCodeGeneratorProps {
   eventId: string;
 }
 
-export default function EmbedCodeGenerator({ eventId }: EmbedCodeGeneratorProps) {
+export default function EmbedCodeGenerator({
+  eventId,
+}: EmbedCodeGeneratorProps) {
   const [copied, setCopied] = useState(false);
+  const [domain, setDomain] = useState("");
 
-  const domain = process.env.NEXT_PUBLIC_DOMAIN || 'http://localhost:3000';
-  const embedCode = `<div class="dpromotion-area" data-id="${eventId}"></div>
-<script src="${domain}/embed.js"></script>`;
+  // 클라이언트에서 실제 도메인 가져오기
+  useEffect(() => {
+    const actualDomain =
+      process.env.NEXT_PUBLIC_DOMAIN || window.location.origin;
+    setDomain(actualDomain);
+  }, []);
+
+  const embedCode = domain
+    ? `<div class="dpromotion-area" data-id="${eventId}"></div>
+<script src="${domain}/embed.js"></script>`
+    : "로딩 중...";
 
   const handleCopy = async () => {
     try {
@@ -19,7 +30,7 @@ export default function EmbedCodeGenerator({ eventId }: EmbedCodeGeneratorProps)
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
     } catch (err) {
-      alert('복사에 실패했습니다.');
+      alert("복사에 실패했습니다.");
     }
   };
 
@@ -35,11 +46,11 @@ export default function EmbedCodeGenerator({ eventId }: EmbedCodeGeneratorProps)
         onClick={handleCopy}
         className={`w-full py-2 px-4 rounded-lg font-semibold transition-colors ${
           copied
-            ? 'bg-green-600 text-white'
-            : 'bg-black text-white hover:bg-gray-800'
+            ? "bg-green-600 text-white"
+            : "bg-black text-white hover:bg-gray-800"
         }`}
       >
-        {copied ? '복사 완료!' : '코드 복사하기'}
+        {copied ? "복사 완료!" : "코드 복사하기"}
       </button>
 
       <div className="text-sm text-gray-600 space-y-2">
