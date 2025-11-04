@@ -1,12 +1,20 @@
 (function () {
   "use strict";
 
-  // 1. data-id 찾기
-  const raffleDiv = document.querySelector(".dpromotion-area");
-  if (!raffleDiv) {
+  // 1. 모든 .dpromotion-area 요소 찾기 (여러 개일 수 있음)
+  const raffleDivs = document.querySelectorAll(".dpromotion-area");
+  if (raffleDivs.length === 0) {
     console.warn("Raffle: .dpromotion-area element not found");
     return;
   }
+
+  // 각 요소에 대해 처리
+  raffleDivs.forEach(function(raffleDiv) {
+    // 이미 처리된 요소는 건너뛰기
+    if (raffleDiv.getAttribute("data-raffle-loaded") === "true") {
+      return;
+    }
+    raffleDiv.setAttribute("data-raffle-loaded", "true");
 
   const eventId = raffleDiv.getAttribute("data-id");
   if (!eventId) {
