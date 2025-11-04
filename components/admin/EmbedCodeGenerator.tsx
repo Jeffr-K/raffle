@@ -20,8 +20,7 @@ export default function EmbedCodeGenerator({
   }, []);
 
   const embedCode = domain
-    ? `<div class="dpromotion-area" data-id="${eventId}"></div>
-<script src="${domain}/embed.js"></script>`
+    ? `<div class="dpromotion-area" data-id="${eventId}"></div><script src="${domain}/embed.js"></script>`
     : "로딩 중...";
 
   const handleCopy = async () => {
@@ -29,7 +28,7 @@ export default function EmbedCodeGenerator({
       await navigator.clipboard.writeText(embedCode);
       setCopied(true);
       setTimeout(() => setCopied(false), 2000);
-    } catch (err) {
+    } catch (err: unknown) {
       alert("복사에 실패했습니다.");
     }
   };

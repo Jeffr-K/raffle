@@ -1,6 +1,7 @@
 // 자동 로드 스크립트 - 페이지 로드 시 .dpromotion-area를 찾아서 자동으로 처리
 (function () {
   "use strict";
+  console.log("Raffle embed-auto.js script started execution.");
 
   function initRaffle(raffleDiv) {
     // 이미 처리된 요소는 건너뛰기
@@ -21,7 +22,8 @@
 
     if (!eventDataStr) {
       console.error("Raffle: Event data not found for", eventId);
-      raffleDiv.innerHTML = '<div style="padding: 20px; text-align: center; color: #999;">이벤트 데이터를 찾을 수 없습니다.</div>';
+      raffleDiv.innerHTML =
+        '<div style="padding: 20px; text-align: center; color: #999;">이벤트 데이터를 찾을 수 없습니다.</div>';
       return;
     }
 
@@ -119,7 +121,7 @@
       const content = modal.querySelector(".raffle-modal-content");
 
       let buttonsHtml = "";
-      buttons.forEach(btn => {
+      buttons.forEach((btn) => {
         buttonsHtml += `<button class="raffle-modal-btn raffle-modal-btn-${btn.type}" onclick="${btn.onclick}">${btn.text}</button>`;
       });
 
@@ -128,26 +130,43 @@
     }
 
     // Enter draw 핸들러
-    window[`__raffle_${eventId}_enter`] = function() {
-      const isLoggedIn = typeof window.CAFE24 !== "undefined" && window.CAFE24 && window.CAFE24.MEMBER_ID;
+    window[`__raffle_${eventId}_enter`] = function () {
+      const isLoggedIn =
+        typeof window.CAFE24 !== "undefined" &&
+        window.CAFE24 &&
+        window.CAFE24.MEMBER_ID;
 
       if (!isLoggedIn) {
         showModal(
           "로그인이 필요합니다",
           "래플 이벤트에 응모하려면 먼저 로그인을 해주세요.",
-          [{ text: "로그인하기", type: "primary", onclick: "window.location.href='/member/login.html?return_url=' + encodeURIComponent(location.href)" }]
+          [
+            {
+              text: "로그인하기",
+              type: "primary",
+              onclick:
+                "window.location.href='/member/login.html?return_url=' + encodeURIComponent(location.href)",
+            },
+          ],
         );
         return;
       }
 
       const memberId = window.CAFE24.MEMBER_ID;
-      const hasEntered = localStorage.getItem(`raffle_${eventId}_${memberId}`) === "true";
+      const hasEntered =
+        localStorage.getItem(`raffle_${eventId}_${memberId}`) === "true";
 
       if (hasEntered) {
         showModal(
           "이미 응모하셨습니다",
           "이미 이 래플 이벤트에 응모하셨습니다.<br>당첨자 발표를 기다려주세요!",
-          [{ text: "확인", type: "primary", onclick: `document.getElementById('raffle-modal-${eventId}').classList.remove('active')` }]
+          [
+            {
+              text: "확인",
+              type: "primary",
+              onclick: `document.getElementById('raffle-modal-${eventId}').classList.remove('active')`,
+            },
+          ],
         );
         return;
       }
@@ -156,14 +175,22 @@
         "카카오톡 채널 친구 추가",
         "래플 이벤트 참여를 위해 카카오톡 채널 친구 추가가 필요합니다.",
         [
-          { text: "친구 추가하고 응모하기", type: "primary", onclick: `window.__raffle_${eventId}_submit()` },
-          { text: "취소", type: "secondary", onclick: `document.getElementById('raffle-modal-${eventId}').classList.remove('active')` }
-        ]
+          {
+            text: "친구 추가하고 응모하기",
+            type: "primary",
+            onclick: `window.__raffle_${eventId}_submit()`,
+          },
+          {
+            text: "취소",
+            type: "secondary",
+            onclick: `document.getElementById('raffle-modal-${eventId}').classList.remove('active')`,
+          },
+        ],
       );
     };
 
     // 응모 제출
-    window[`__raffle_${eventId}_submit`] = async function() {
+    window[`__raffle_${eventId}_submit`] = async function () {
       const memberId = window.CAFE24.MEMBER_ID;
       const memberName = window.CAFE24.MEMBER_NAME || "";
       const memberEmail = window.CAFE24.MEMBER_EMAIL || "";
@@ -173,7 +200,11 @@
         const scripts = document.getElementsByTagName("script");
         let domain = "";
         for (let i = 0; i < scripts.length; i++) {
-          if (scripts[i].src && (scripts[i].src.includes("/embed.js") || scripts[i].src.includes("/embed-auto.js"))) {
+          if (
+            scripts[i].src &&
+            (scripts[i].src.includes("/embed.js") ||
+              scripts[i].src.includes("/embed-auto.js"))
+          ) {
             domain = new URL(scripts[i].src).origin;
             break;
           }
@@ -189,8 +220,8 @@
             name: memberName,
             email: memberEmail,
             phone: memberPhone,
-            kakaoFriend: "Y"
-          })
+            kakaoFriend: "Y",
+          }),
         });
 
         if (response.ok) {
@@ -198,7 +229,13 @@
           showModal(
             "응모 완료!",
             "래플 이벤트 응모가 완료되었습니다.<br>당첨자 발표를 기다려주세요!",
-            [{ text: "확인", type: "primary", onclick: `document.getElementById('raffle-modal-${eventId}').classList.remove('active')` }]
+            [
+              {
+                text: "확인",
+                type: "primary",
+                onclick: `document.getElementById('raffle-modal-${eventId}').classList.remove('active')`,
+              },
+            ],
           );
         } else {
           throw new Error("Failed to submit");
@@ -207,18 +244,26 @@
         showModal(
           "오류 발생",
           "응모 처리 중 오류가 발생했습니다. 다시 시도해주세요.",
-          [{ text: "확인", type: "primary", onclick: `document.getElementById('raffle-modal-${eventId}').classList.remove('active')` }]
+          [
+            {
+              text: "확인",
+              type: "primary",
+              onclick: `document.getElementById('raffle-modal-${eventId}').classList.remove('active')`,
+            },
+          ],
         );
       }
     };
 
     // Learn more 핸들러
-    window[`__raffle_${eventId}_learn`] = function() {
-      showModal(
-        eventData.name,
-        "상품 상세 정보를 확인하세요.",
-        [{ text: "확인", type: "primary", onclick: `document.getElementById('raffle-modal-${eventId}').classList.remove('active')` }]
-      );
+    window[`__raffle_${eventId}_learn`] = function () {
+      showModal(eventData.name, "상품 상세 정보를 확인하세요.", [
+        {
+          text: "확인",
+          type: "primary",
+          onclick: `document.getElementById('raffle-modal-${eventId}').classList.remove('active')`,
+        },
+      ]);
     };
 
     console.log("Raffle loaded:", eventId);
@@ -238,14 +283,15 @@
   }
 
   // MutationObserver로 동적으로 추가된 요소도 감지
-  const observer = new MutationObserver(function(mutations) {
-    mutations.forEach(function(mutation) {
-      mutation.addedNodes.forEach(function(node) {
+  const observer = new MutationObserver(function (mutations) {
+    mutations.forEach(function (mutation) {
+      mutation.addedNodes.forEach(function (node) {
         if (node.nodeType === 1) {
           if (node.classList && node.classList.contains("dpromotion-area")) {
             initRaffle(node);
           }
-          const children = node.querySelectorAll && node.querySelectorAll(".dpromotion-area");
+          const children =
+            node.querySelectorAll && node.querySelectorAll(".dpromotion-area");
           if (children) {
             children.forEach(initRaffle);
           }
