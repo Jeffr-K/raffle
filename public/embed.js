@@ -16,11 +16,18 @@
 
   // 2. iframe 생성
   const iframe = document.createElement("iframe");
-  // 로컬 개발 환경 감지
-  const isLocalDev =
-    window.location.hostname === "localhost" ||
-    window.location.hostname === "127.0.0.1";
-  const domain = isLocalDev ? "http://localhost:3000" : window.location.origin;
+  // 스크립트가 로드된 URL에서 도메인 추출
+  const scripts = document.getElementsByTagName("script");
+  let scriptSrc = "";
+  for (let i = 0; i < scripts.length; i++) {
+    if (scripts[i].src && scripts[i].src.includes("/embed.js")) {
+      scriptSrc = scripts[i].src;
+      break;
+    }
+  }
+
+  // 스크립트 URL에서 도메인 추출 (예: https://your-domain.vercel.app/embed.js)
+  const domain = scriptSrc ? new URL(scriptSrc).origin : window.location.origin;
 
   iframe.src = `${domain}/embed/${eventId}`;
   iframe.style.width = "100%";
